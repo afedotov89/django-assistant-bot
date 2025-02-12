@@ -109,6 +109,97 @@ JSON schemas for various operations:
 - Topic classification
 - Search operations
 
+### Domain Models
+
+#### Update
+Represents an incoming update from the platform:
+```python
+@dataclasses.dataclass
+class Update:
+    chat_id: str              # Chat identifier
+    message_id: Optional[int] # Message identifier
+    text: Optional[str]       # Message text
+    photo: Optional[Photo]    # Photo data if present
+    user: Optional[User]      # User information
+    callback_query: Optional[CallbackQuery] # Callback data
+```
+
+#### Answer Types
+Two types of responses are supported:
+
+1. SingleAnswer:
+```python
+answer = SingleAnswer(
+    text="Response text",
+    thinking="Internal thought process",
+    image_url="Optional image URL",
+    is_markdown=True,
+    buttons=[[Button("Click me", "/command")]],
+    state={"key": "value"},
+    usage=[{"model": "gpt-4", "tokens": 150}]
+)
+```
+
+2. MultiPartAnswer for complex responses:
+```python
+multi_answer = MultiPartAnswer([
+    SingleAnswer(text="Part 1"),
+    SingleAnswer(text="Part 2")
+])
+```
+
+### Command System Examples
+
+1. Basic command:
+```python
+@AssistantBot.command(r'/start')
+async def command_start(self, match, message_id):
+    return SingleAnswer("Bot started!")
+```
+
+2. Command with parameters:
+```python
+@AssistantBot.command(r'/search\s+(.*)')
+async def command_search(self, match, message_id):
+    query = match.group(1)
+    return SingleAnswer(f"Searching for: {query}")
+```
+
+### State Management Examples
+
+1. Updating state:
+```python
+await self.update_state({
+    'current_mode': 'search',
+    'last_query': 'example',
+    'results_count': 5
+})
+```
+
+2. Reading state:
+```python
+current_mode = self.instance.state.get('current_mode')
+if current_mode == 'search':
+    # Handle search mode
+```
+
+### Resource Management Examples
+
+1. Loading localized messages:
+```python
+# messages/en/welcome.txt
+resource_manager = ResourceManager(codename='mybot', language='en')
+welcome_text = resource_manager.get_message('welcome.txt')
+```
+
+2. Error handling:
+```python
+try:
+    text = resource_manager.get_phrase('key')
+except NoMessageFound:
+    text = "Default message"
+```
+
 ### loading
 Data loading functionality:
 - CSV data import
@@ -146,6 +237,72 @@ Retrieval-Augmented Generation:
   - Similarity scoring
   - Result ranking
   - Context retrieval
+
+### RAG Examples
+
+#### Document Search and Retrieval
+```python
+from assistant.rag.services.search_service import SearchService
+from assistant.storage.models import Document
+
+# Initialize search service
+search_service = SearchService()
+
+# Search for relevant documents
+results = await search_service.search(
+    query="How to configure logging?",
+    limit=3,
+    similarity_threshold=0.8
+)
+
+# Process search results
+for doc in results:
+    print(f"Document: {doc.name}")
+    print(f"Similarity: {doc.similarity_score}")
+    print(f"Content: {doc.content[:200]}...")
+```
+
+#### Integrating RAG with Bot Responses
+```python
+async def handle_user_query(query: str) -> str:
+    # Search for relevant documents
+    docs = await search_service.search(query)
+    
+    # Build context from documents
+    context = "\n".join([
+        f"Document '{doc.name}':\n{doc.content}"
+        for doc in docs
+    ])
+    
+    # Create messages with context
+    messages = [
+        {
+            "role": "system",
+            "content": f"Use this context to answer questions:\n{context}"
+        },
+        {
+            "role": "user",
+            "content": query
+        }
+    ]
+    
+    # Get AI response with context
+    response = await ai_service.get_response(messages)
+    return response.text
+```
+
+#### Vector Search Configuration
+```python
+# settings.py
+VECTOR_SEARCH_SETTINGS = {
+    'model': 'text-embedding-3-small',  # Embedding model
+    'dimensions': 1536,                 # Vector dimensions
+    'metric': 'cosine',                # Similarity metric
+    'index_type': 'hnsw',              # Index type for pgvector
+    'ef_search': 100,                  # HNSW search parameter
+    'm': 16                            # HNSW graph parameter
+}
+```
 
 ### storage
 Data storage:
