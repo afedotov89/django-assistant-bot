@@ -26,141 +26,288 @@ pip install .
 The project is organized into several Django apps:
 
 ### admin
-Administrative interface and management commands.
+Administrative interface and management commands:
+- Management commands for queue processing
+- Admin interface customization
+- Bot configuration management
 
 ### ai
 Core AI functionality:
-- `dialog.py`: AI dialog management
-- `domain.py`: Core domain models
-- `embedders/`: Various embedding providers (GPU, Ollama, OpenAI, Transformers)
-- `providers/`: AI model providers implementation
-- `services/`: AI-related services
+
+#### dialog.py
+Handles AI dialog management:
+- Message context management
+- AI provider integration
+- Response handling
+- Token calculation
+- Context size management
+
+#### domain.py
+Core domain models for AI interaction:
+- Message structure
+- AI Response format
+- Common data types
+
+#### embedders/
+Various embedding providers:
+- `gpu_service.py`: GPU-accelerated embeddings
+- `ollama.py`: Ollama embeddings integration
+- `openai.py`: OpenAI embeddings
+- `transformers.py`: Hugging Face Transformers embeddings
+
+#### providers/
+AI model providers implementation:
+- `base.py`: Base provider interface
+- `gpu_service.py`: GPU service integration
+- `groq.py`: Groq API integration
+- `ollama.py`: Ollama models support
+- `openai.py`: OpenAI API integration
+- `transformers.py`: Local transformer models
+
+#### services/
+AI-related services:
+- `ai_service.py`: Core AI service functionality
+  - Provider management
+  - Response formatting
+  - Error handling
 
 ### bot
 Main bot functionality:
-- `assistant_bot.py`: Core bot implementation
-- `chat_completion.py`: Chat completion handling
-- `platforms/`: Platform-specific implementations (e.g., Telegram)
-- `services/`: Bot-related services
-- `schemas/`: JSON schemas for various bot operations
+
+#### assistant_bot.py
+Core bot implementation:
+- Message handling
+- Command processing
+- State management
+- Dialog control
+- Platform integration
+
+#### chat_completion.py
+Chat completion handling:
+- Message generation
+- Context management
+- Model selection
+- Response formatting
+
+#### platforms/
+Platform-specific implementations:
+- Telegram integration with markdown support
+- Extensible base for other platforms
+
+#### services/
+Bot-related services:
+- `dialog_service.py`: Dialog management
+- `instance_service.py`: Bot instance handling
+- `schema_service.py`: JSON schema validation
+- `context_service/`: Context management
+
+#### schemas/
+JSON schemas for various operations:
+- Context checking
+- Document selection
+- Question handling
+- Topic classification
+- Search operations
 
 ### loading
 Data loading functionality:
-- CSV data loading
-- Management commands for data import
+- CSV data import
+- Data validation
+- Format conversion
+- Import management commands
 
 ### processing
 Document processing:
-- Wiki document processing
-- Document splitting and formatting
-- Question generation and merging
+
+#### documents/
+Document processing pipeline:
+- `processor.py`: Main document processor
 - Custom processing steps
+
+#### schemas/
+Processing operation schemas:
+- Document questions generation
+- Document formatting
+- Question merging
+- Document splitting
+- Section extraction
+
+#### wiki.py
+Wiki document processing:
+- Content extraction
+- Structure analysis
+- Metadata handling
 
 ### rag
 Retrieval-Augmented Generation:
-- Search services
-- Document retrieval
+
+#### services/
+- `search_service.py`: Vector-based document search
+  - Similarity scoring
+  - Result ranking
+  - Context retrieval
 
 ### storage
 Data storage:
+
+#### models.py
+Database models:
 - Document storage
-- API endpoints
-- Database models
+- Wiki document management
+- Embedding storage
+- Metadata management
+
+#### api/
+REST API implementation:
+- `filters.py`: Query filtering
+- `pagination.py`: Result pagination
+- `serializers.py`: Data serialization
+- `views.py`: API endpoints
 
 ### utils
 Utility functions:
-- Database utilities
-- Debugging tools
-- JSON schema handling
-- Language processing
-- Throttling
+
+#### db.py
+Database utilities:
+- Connection management
+- Query optimization
+- Transaction handling
+
+#### debug.py
+Debugging tools:
+- Performance monitoring
+- Error tracking
+- Debug logging
+
+#### json_schema.py
+JSON schema utilities:
+- Schema validation
+- Format checking
+- Error reporting
+
+#### language.py
+Language processing:
+- Language detection
+- Text processing
+- Character encoding
+
+#### repeat_until.py
+Retry mechanism:
+- Operation retrying
+- Error handling
+- Timeout management
+
+#### throttle.py
+Rate limiting:
+- API call throttling
+- Request queuing
+- Limit enforcement
 
 ## Configuration
 
-The bot can be configured through Django settings and environment variables. Key settings include:
-
-- `DEFAULT_AI_MODEL`: Default AI model to use
-- `DIALOG_FAST_AI_MODEL`: Model for quick responses
-- `DIALOG_STRONG_AI_MODEL`: Model for complex processing
-
-## Usage
-
-1. Install the package:
+### Environment Variables
 ```bash
-pip install .
+# AI Provider Settings
+OPENAI_API_KEY=your_openai_key
+GROQ_API_KEY=your_groq_key
+OLLAMA_HOST=http://localhost:11434
+
+# Database Settings
+DATABASE_URL=postgresql://user:pass@localhost/dbname
+
+# Redis Settings (for Celery)
+REDIS_URL=redis://localhost:6379/0
+
+# Telegram Bot Settings
+TELEGRAM_BOT_TOKEN=your_bot_token
 ```
 
-2. Add required apps to INSTALLED_APPS in your Django settings:
+### Django Settings
 ```python
-INSTALLED_APPS = [
-    ...
-    'assistant.admin',
-    'assistant.ai',
-    'assistant.bot',
-    'assistant.loading',
-    'assistant.processing',
-    'assistant.rag',
-    'assistant.storage',
-]
+# AI Models Configuration
+DEFAULT_AI_MODEL = 'gpt-3.5-turbo'
+DIALOG_FAST_AI_MODEL = 'gpt-3.5-turbo'
+DIALOG_STRONG_AI_MODEL = 'gpt-4'
+
+# Vector Search Settings
+VECTOR_SIMILARITY_THRESHOLD = 0.8
+MAX_SEARCH_RESULTS = 5
+
+# Bot Settings
+BOT_MESSAGE_TIMEOUT = 60
+BOT_MAX_RETRIES = 3
 ```
-
-3. Configure your AI providers in settings.py:
-```python
-DEFAULT_AI_MODEL = 'your-default-model'
-DIALOG_FAST_AI_MODEL = 'fast-model'
-DIALOG_STRONG_AI_MODEL = 'strong-model'
-```
-
-4. Set up your platform credentials (e.g., Telegram bot token) in environment variables.
-
-5. Run migrations:
-```bash
-python manage.py migrate
-```
-
-## Example Implementation
-
-See the `example` directory for a complete working example of a bot implementation.
-
-## Commands
-
-The bot supports various commands:
-
-- `/start`: Start a new conversation
-- `/help`: Show help message
-- `/continue`: Continue the previous response
-- `/new`: Start a new dialog
-- `/model <model_id>`: Switch AI model
-- `/models`: List available AI models
-- `/debug`: Show debug information
-- `/doc <doc_id>`: Show document content
-- `/wiki <wiki_id>`: Show wiki document
 
 ## Development
 
 ### Adding New AI Providers
 
-1. Create a new provider in `assistant.ai.providers`
-2. Implement the required interface
-3. Register the provider in settings
+1. Create a new provider class in `assistant.ai.providers`:
+```python
+from assistant.ai.providers.base import AIProvider
+
+class NewProvider(AIProvider):
+    async def get_response(self, messages, max_tokens=1024, json_format=False):
+        # Implementation
+        pass
+```
+
+2. Register in `ai_service.py`:
+```python
+PROVIDERS = {
+    'new-provider': NewProvider,
+}
+```
 
 ### Adding New Platforms
 
-1. Create a new platform implementation in `assistant.bot.platforms`
-2. Implement the platform interface
-3. Register the platform in your bot configuration
+1. Create platform implementation:
+```python
+from assistant.bot.domain import BotPlatform
 
-## Dependencies
+class NewPlatform(BotPlatform):
+    async def send_message(self, chat_id, text, **kwargs):
+        # Implementation
+        pass
+```
 
-Key dependencies include:
-- Django 4.2.13
-- djangorestframework 3.15.1
-- python-telegram-bot 21.1.1
-- openai 1.28.1
-- groq 0.6.0
-- ollama 0.4.4
-- celery 5.4.0
-- pgvector 0.2.5 (for vector embeddings)
+2. Register in your bot configuration.
+
+## Testing
+
+Run tests with pytest:
+```bash
+pytest
+```
+
+Test coverage:
+```bash
+pytest --cov=assistant
+```
+
+## Deployment
+
+1. Install requirements:
+```bash
+pip install -r requirements.txt
+```
+
+2. Configure environment variables
+
+3. Run migrations:
+```bash
+python manage.py migrate
+```
+
+4. Start Celery worker:
+```bash
+celery -A your_project worker -l info
+```
+
+5. Run the bot:
+```bash
+python manage.py runbot
+```
 
 ## License
 
