@@ -190,7 +190,7 @@ LOGGING = {
     'loggers': {
         'django': {
             'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
+            'level': 'INFO',
             'propagate': False,
         },
         'bot': {

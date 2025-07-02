@@ -35,3 +35,8 @@ celery -A project beat -l info --scheduler django_celery_beat.schedulers:Databas
 ```
 
 > **Note**: The `telegram_poll` command now uses a direct mechanism for receiving updates from Telegram API instead of the python-telegram-bot library.
+
+
+## Teelgram Webhook
+
+Use `https://<your-domain>/telegram/task_manager/`
