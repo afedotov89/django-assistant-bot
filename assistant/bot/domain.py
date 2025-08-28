@@ -149,13 +149,14 @@ class SingleAnswer:
     no_store: bool
     debug_info: Dict
     audio: Optional[Audio]
+    disable_web_page_preview: bool | None = None
 
     _raw_text: str
 
     def __init__(self, text: str = None, thinking: str = None, image_url: str = None, is_markdown: bool = False, reply_keyboard: Any = None,
                  buttons: List[List[Button]] = None, state: Dict = None,
                  raw_text: str = None, usage: List[Dict] = None, debug_info: Dict = None, no_store: bool = False,
-                 audio: Optional[Audio] = None):
+                 audio: Optional[Audio] = None, disable_web_page_preview: bool | None = None):
         self.text = text
         self.thinking = thinking
         self.image_url = image_url
@@ -168,6 +169,7 @@ class SingleAnswer:
         self.no_store = no_store
         self._raw_text = raw_text
         self.audio = audio
+        self.disable_web_page_preview = disable_web_page_preview
 
     @property
     def raw_text(self):
@@ -198,6 +200,7 @@ class SingleAnswer:
             'no_store': self.no_store,
             'raw_text': self._raw_text,
             'audio': self.audio.to_dict() if self.audio else None,
+            'disable_web_page_preview': self.disable_web_page_preview
         }
 
     @classmethod

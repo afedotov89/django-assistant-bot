@@ -160,7 +160,8 @@ class TelegramBotPlatform(BotPlatform):
                         chat_id=chat_id,
                         text=text_content,
                         reply_markup=reply_markup,
-                        parse_mode=parse_mode
+                        parse_mode=parse_mode,
+                        disable_web_page_preview=answer.disable_web_page_preview,
                     )
                     text_sent = True
                     error_occurred = False
